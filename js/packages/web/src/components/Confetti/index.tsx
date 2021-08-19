@@ -50,7 +50,7 @@ export const ConfettiProvider = ({ children = null as any }) => {
 
   const backgroundColor = {
     backgroundColor: '#6875B6',
-    height: '100%'
+    height: '100vh'
   }
 
   return (
