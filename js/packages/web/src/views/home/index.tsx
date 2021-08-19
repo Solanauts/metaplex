@@ -205,7 +205,7 @@ export const HomeView = () => {
               <Tabs activeKey={activeKey}
                   onTabClick={key => setActiveKey(key as LiveAuctionViewState)}>
                   <TabPane
-                    tab={<span className="tab-title">Live Auctions</span>}
+                    tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
                     {liveAuctionsView}
