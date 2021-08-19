@@ -1,10 +1,10 @@
 {
-  "name": "Solanaut",
-  "short_name": "Solanaut",
+  "name": "Solanauts",
+  "short_name": "Solanauts",
   "display": "standalone",
   "start_url": "./",
   "theme_color": "#002140",
-  "background_color": "#001529",
+  "background_color": "#6875B6",
   "icons": [
     {
       "src": "/favicon-16x16.png",

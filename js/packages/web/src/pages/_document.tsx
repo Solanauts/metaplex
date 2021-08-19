@@ -39,7 +39,7 @@ export default class MetaplexDocument extends Document {
             sizes="16x16"
             href="/favicon-16x16.png"
           />
-          <meta name="theme-color" content="#6875b6" />
+          <meta name="theme-color" content="#6875B6" />
           <meta name="description" content="Solanauts" />
           <link rel="manifest" href="/manifest.json" />
           <link
