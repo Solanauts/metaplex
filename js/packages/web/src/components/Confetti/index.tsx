@@ -44,13 +44,21 @@ export const ConfettiProvider = ({ children = null as any }) => {
     position: 'absolute',
     zIndex: 1,
     top: 0,
-    left: 0
+    left: 0,
+    visibility: "visible"
   };
+
+  const backgroundColor = {
+    backgroundColor: '#6875B6',
+    height: '100%'
+  }
 
   return (
     <ConfettiContext.Provider value={{ dropConfetti }}>
-      <canvas ref={canvasRef as any} style={canvasStyle} />
-      {children}
+      <div style={ backgroundColor }>
+        <canvas ref={canvasRef as any} style={canvasStyle} />
+        {children}
+      </div>
     </ConfettiContext.Provider>
   );
 }
