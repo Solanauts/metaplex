@@ -21,6 +21,7 @@ const UserActions = () => {
     );
   }, [pubkey, whitelistedCreatorsByCreator, store]);
 
+
   return (
     <>
       {/* <Link to={`#`}>
@@ -43,23 +44,25 @@ const UserActions = () => {
 const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
   const { connected } = useWallet();
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: vertical ? 'column' : 'row',
-      }}
-    >
-      <Link to={`/`}>
-        <Button className="app-btn">Explore</Button>
-      </Link>
-      <Link to={`/artworks`}>
-        <Button className="app-btn">
-          {connected ? 'My Items' : 'Artworks'}
-        </Button>
-      </Link>
-      <Link to={`/artists`}>
-        <Button className="app-btn">Creators</Button>
-      </Link>
+    <div className='background-gradient'>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: vertical ? 'column' : 'row',
+        }}
+      >
+        <Link to={`/`}>
+          <Button className="app-btn">Explore</Button>
+        </Link>
+        <Link to={`/artworks`}>
+          <Button className="app-btn">
+            {connected ? 'My Items' : 'Artworks'}
+          </Button>
+        </Link>
+        <Link to={`/artists`}>
+          <Button className="app-btn">Creators</Button>
+        </Link>
+      </div>
     </div>
   );
 };
