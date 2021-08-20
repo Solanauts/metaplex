@@ -109,7 +109,7 @@ export const HomeView = () => {
             const id = m.auction.pubkey;
             return (
               <Link to={`/auction/${id}`} key={idx}>
-                <AuctionRenderCard key={id} auctionView={m} />
+                <AuctionRenderCard key={id} auctionView={m} /> //TODO: Swap out for SolanautLaunchCard. Can probably also remove this component from the Link div since we're not sending them to another page. Just displaying the SolanautLaunchCad
               </Link>
             );
           })
@@ -208,7 +208,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {liveAuctionsView} //TODO: Add MintView Here
+                    {liveAuctionsView} //TODO: Change Name from LiveAuctionsView to LiveLaunchView here and above on Line 97.
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane
