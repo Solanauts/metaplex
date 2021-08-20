@@ -208,7 +208,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {liveAuctionsView}
+                    {liveAuctionsView} //TODO: Add MintView Here
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane
