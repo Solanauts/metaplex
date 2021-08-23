@@ -54,12 +54,14 @@ export const ENDPOINTS = [
   },
   {
     name: 'devnet' as ENV,
-    endpoint: clusterApiUrl('devnet'),
+    endpoint: 'https://api.devnet.solana.com',
+    //endpoint: clusterApiUrl('devnet'),
     ChainId: ChainId.Devnet,
   },
 ];
 
-const DEFAULT = ENDPOINTS[0].endpoint;
+//TODO: Change all ENDPOINTS back to 0 for Mainnet in this file, don't JUST change DEFAULT.
+const DEFAULT = ENDPOINTS[4].endpoint;
 
 interface ConnectionConfig {
   connection: Connection;
@@ -74,7 +76,7 @@ const ConnectionContext = React.createContext<ConnectionConfig>({
   endpoint: DEFAULT,
   setEndpoint: () => {},
   connection: new Connection(DEFAULT, 'recent'),
-  env: ENDPOINTS[0].name,
+  env: ENDPOINTS[4].name,
   tokens: [],
   tokenMap: new Map<string, TokenInfo>(),
 });
@@ -85,7 +87,7 @@ export function ConnectionProvider({
 }) {
   const [endpoint, setEndpoint] = useLocalStorageState(
     'connectionEndpoint',
-    ENDPOINTS[0].endpoint,
+    ENDPOINTS[4].endpoint,
   );
 
   const connection = useMemo(
@@ -94,7 +96,7 @@ export function ConnectionProvider({
   );
 
   const env =
-    ENDPOINTS.find(end => end.endpoint === endpoint)?.name || ENDPOINTS[0].name;
+    ENDPOINTS.find(end => end.endpoint === endpoint)?.name || ENDPOINTS[4].name;
 
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [tokenMap, setTokenMap] = useState<Map<string, TokenInfo>>(new Map());

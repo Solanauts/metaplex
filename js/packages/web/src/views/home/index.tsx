@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import { Layout, Row, Col, Tabs, Button } from 'antd';
 import Masonry from 'react-masonry-css';
 
@@ -10,7 +10,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { CardLoader } from '../../components/MyLoader';
 import { useMeta } from '../../contexts';
 import BN from 'bn.js';
-import { programIds, useConnection, useWallet } from '@oyster/common';
+import { programIds, useConnection, useConnectionConfig, useWallet } from '@oyster/common';
 import { saveAdmin } from '../../actions/saveAdmin';
 import { WhitelistedCreator } from '../../models/metaplex';
 
@@ -33,6 +33,7 @@ export const HomeView = () => {
   const { isLoading, store } = useMeta();
   const [isInitalizingStore, setIsInitalizingStore] = useState(false);
   const connection = useConnection();
+  const displayConnection = useConnectionConfig().env && useConnectionConfig().endpoint;
   const history = useHistory();
   const { wallet, connect, connected } = useWallet();
   const breakpointColumnsObj = {
@@ -41,6 +42,14 @@ export const HomeView = () => {
     700: 2,
     500: 1,
   };
+
+  const displayConnectionInConsole = () => {
+    console.log( displayConnection );
+  }
+
+  useEffect(() => {
+    displayConnectionInConsole();
+  }, []);
 
   // Check if the auction is primary sale or not
   const checkPrimarySale = (auc:AuctionView) => {
