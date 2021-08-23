@@ -75,6 +75,18 @@ export interface IMetadataExtension {
 
   seller_fee_basis_points: number;
 
+  // Solanaut Attributes
+  nautIDNumber?: number;
+  nautSuit?: string;
+  nautVisor?: string;
+  nautBackground?: string;
+  nautOrientation?: string;
+  nautPatchOne?: string;
+  nautPatchTwo?: string;
+  nautSecondaryColor?: string;
+  nautDubsTrips?: string;
+  nautRank?: number;
+
   properties: {
     files?: FileOrString[];
     category: MetadataCategory;
