@@ -40,10 +40,6 @@ const Transfer = ({ keypair }) => {
     const url = 'https://api.devnet.solana.com';
     const connection = new Connection(url);
 
-    const wallets = useMemo(() => [
-      // getPhantomWallet()
-    ], []);
-
     // @ts-ignore
     const toPubKey = new PublicKey(toAddress);
     //const fromPubkey = new PublicKey(toAddress);
