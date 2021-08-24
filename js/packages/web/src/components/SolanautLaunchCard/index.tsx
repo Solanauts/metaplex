@@ -42,17 +42,18 @@ const Transfer = ({ keypair }) => {
 
     // @ts-ignore
     const toPubKey = new PublicKey(toAddress);
-    //const fromPubkey = new PublicKey(toAddress);
+    const fromPubKey = new PublicKey(values.from);
 
     const instructions = SystemProgram.transfer({
-      fromPubkey: keypair.publicKey,
+      fromPubkey: fromPubKey,
+      //fromPubkey: keypair.publicKey,
       toPubkey: toPubKey,
       lamports: amountNumber,
     });
 
     const signers = [
       {
-        publicKey: keypair.publicKey,
+        publicKey: fromPubKey,
         secretKey: new Uint8Array(keypair.secretKey)
       }
     ];
