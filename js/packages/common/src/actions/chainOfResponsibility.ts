@@ -1,3 +1,1 @@
-export class ChainOfResponsibility {
-  constructor() {}
-}
+// Helper for generating a transaction URL on Solana Explorer
