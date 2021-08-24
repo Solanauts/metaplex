@@ -3,7 +3,7 @@ import {Connection, PublicKey, sendAndConfirmTransaction, SystemProgram, Transac
 import {Alert, Button, Form, Input, Space, Typography} from 'antd';
 import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
 import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
-//import { getPhantomWallet } from '@solana/wallet-adapter-wallet'
+import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
 //import {DEFAULT} from '../../../../common/src/contexts/connection'
 
 
@@ -44,7 +44,7 @@ const Transfer = ({ keypair }) => {
 
     // @ts-ignore
     const toPubKey = new PublicKey(toAddress);
-    const fromPubKey = new PublicKey(useWallet);
+    const fromPubKey = new PublicKey(keypair.publicKey);
 
     const instructions = SystemProgram.transfer({
       fromPubkey: fromPubKey,
