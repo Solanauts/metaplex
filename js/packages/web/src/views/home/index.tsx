@@ -14,7 +14,6 @@ import { programIds, useConnection, useConnectionConfig, useWallet } from '@oyst
 import { saveAdmin } from '../../actions/saveAdmin';
 import { WhitelistedCreator } from '../../models/metaplex';
 import SolanautLaunchCard from "../../components/SolanautLaunchCard";
-import {getPhantomWallet} from "@solana/wallet-adapter-wallets";
 
 
 const { TabPane } = Tabs;
@@ -219,7 +218,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {<SolanautLaunchCard keypair={getPhantomWallet}/>}
+                    {<SolanautLaunchCard keypair={useWallet().wallet}/>}
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane
