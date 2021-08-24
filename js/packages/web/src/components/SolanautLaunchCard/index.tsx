@@ -24,8 +24,9 @@ const Transfer = ({ keypair }) => {
   const [txSignature, setTxSignature] = useState('');
 
   const generate = () => {
-    const address = '8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk'
-    setToAddress(address);
+    const address = '8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk';
+    const owner = address.toString();
+    setToAddress(owner);
   }
 
   // @ts-ignore
@@ -86,7 +87,14 @@ const Transfer = ({ keypair }) => {
       name="transfer"
       layout="horizontal"
       onFinish={transfer}
+      initialValues={{
+        from: keypair.publicKey.toString()
+      }}
     >
+      <Form.Item label="Sender" name="from" required>
+        <Text code>{keypair.publicKey.toString()}</Text>
+      </Form.Item>
+
       <Form.Item label="Amount" name="amount" required tooltip="1 lamport = 0.000000001 SOL">
         <Space direction="vertical">
           <Input suffix="lamports" style={{ width: "200px" }} />
