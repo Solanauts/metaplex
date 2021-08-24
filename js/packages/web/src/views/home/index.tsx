@@ -218,7 +218,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {<SolanautLaunchCard keypair={useWallet().wallet}/>}
+                    {<SolanautLaunchCard/>}
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane

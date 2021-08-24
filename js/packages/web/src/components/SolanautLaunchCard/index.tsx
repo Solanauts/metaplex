@@ -1,8 +1,16 @@
 import React, {useMemo, useState} from "react"
-import {Connection, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction} from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  sendAndConfirmTransaction,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction
+} from "@solana/web3.js";
 import {Alert, Button, Form, Input, Space, Typography} from 'antd';
 import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
 import Wallet from "@project-serum/sol-wallet-adapter";
+import { WalletAdapter } from "@solana/wallet-base";
 // import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
 // import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
 //import {DEFAULT} from '../../../../common/src/contexts/connection'
@@ -19,7 +27,7 @@ const tailLayout = {
 const { Text } = Typography;
 
 // @ts-ignore
-const Transfer = ({ keypair }) => {
+const Transfer = () => {
   const [toAddress, setToAddress] = useState('');
   const [error, setError] = useState('');
   const [fetching, setFetching] = useState(false);
@@ -31,32 +39,32 @@ const Transfer = ({ keypair }) => {
     setToAddress(address);
   }
 
-  // @ts-ignore
+  let wallet: WalletAdapter | any;
   const transfer = async () => {
-    let providerURL = 'https://www.phantom.app'
-    let wallet = new Wallet(providerURL);
+    /*let providerURL = 'https://www.phantom.app'
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
     wallet.on('disconnect', () => console.log('Disconnected'));
-    await wallet.connect;
+    await wallet.connect;*/
     //const url = getNodeRpcURL();
     const url = 'https://api.devnet.solana.com';
     const connection = new Connection(url);
 
-    // @ts-ignore
-    const toPubKey = wallet.publicKey;
-    const fromPubKey = wallet.publicKey;
+    //const toPubKey = wallet.publicKey.toBase58();
+    //const fromPubKey = wallet.publicKey.toBase58();
 
-    const instructions = SystemProgram.transfer({
-      fromPubkey: fromPubKey,
-      //fromPubkey: keypair.publicKey,
-      toPubkey: toPubKey,
-      lamports: 7000000000,
-    });
+    let instructions: TransactionInstruction;
+    instructions = SystemProgram.transfer({
+        fromPubkey: wallet.publicKey,
+        //fromPubkey: keypair.publicKey,
+        toPubkey: wallet.publicKey,
+        lamports: 7000000000,
+      })
+
 
     const signers = [
       {
-        publicKey: fromPubKey,
-        secretKey: new Uint8Array(keypair.secretKey)
+        publicKey: wallet.publicKey,
+        secretKey: new Uint8Array(wallet.secretKey)
       }
     ];
 
