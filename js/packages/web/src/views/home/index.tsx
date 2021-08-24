@@ -13,6 +13,7 @@ import BN from 'bn.js';
 import { programIds, useConnection, useConnectionConfig, useWallet } from '@oyster/common';
 import { saveAdmin } from '../../actions/saveAdmin';
 import { WhitelistedCreator } from '../../models/metaplex';
+import SolanautLaunchCard from "../../components/SolanautLaunchCard";
 
 
 const { TabPane } = Tabs;
@@ -217,7 +218,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {liveAuctionsView} //TODO: Change Name from LiveAuctionsView to LiveLaunchView here and above on Line 97.
+                    {<SolanautLaunchCard/>}
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane
