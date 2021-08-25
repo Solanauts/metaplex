@@ -43,7 +43,7 @@ const Transfer = () => {
   //let wallet: WalletAdapter;
   const transfer = async ( feePayer: Keypair ) => {
     let providerURL = 'https://www.phantom.app'
-    let wallet: WalletAdapter = new Wallet( providerURL );
+    let wallet = new Wallet( providerURL );
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
     wallet.on('disconnect', () => console.log('Disconnected'));
     await wallet.connect;
@@ -57,7 +57,7 @@ const Transfer = () => {
     let instructions: TransactionInstruction;
     instructions = SystemProgram.transfer({
       // @ts-ignore
-        fromPubkey: feePayer.publicKey,
+        fromPubkey: wallet.publicKey,
       // @ts-ignore
         toPubkey: toAddress,
         lamports: 2000000000,
@@ -65,10 +65,8 @@ const Transfer = () => {
 
     const signers = [
       {
-        // @ts-ignore
-        publicKey: feePayer.publicKey,
-        // @ts-ignore
-        secretKey: new Uint8Array(feePayer.secretKey)
+        publicKey: wallet.publicKey,
+        secretKey: new Uint8Array(wallet.secretKey)
       }
     ];
 
@@ -79,7 +77,7 @@ const Transfer = () => {
     let transaction = new Transaction().add(instructions);
     let { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;
-    transaction.feePayer = feePayer.publicKey;
+    transaction.feePayer = wallet.publicKey;
     let signed = await wallet.signTransaction(transaction);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
@@ -89,7 +87,6 @@ const Transfer = () => {
     sendAndConfirmTransaction(
       connection,
       transaction,
-      // @ts-ignore
       signers,
     ).then((signature) => {
       setTxSignature(signature);
