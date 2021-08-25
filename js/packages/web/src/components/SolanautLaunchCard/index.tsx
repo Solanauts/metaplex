@@ -79,7 +79,8 @@ const Transfer = () => {
     let transaction = new Transaction().add(instructions);
     let { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;
-    transaction.feePayer = feePayer.publicKey;
+    // @ts-ignore
+    transaction.feePayer = wallet.publicKey;
     let signed = await wallet.signTransaction(transaction);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
