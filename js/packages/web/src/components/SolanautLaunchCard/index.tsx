@@ -11,6 +11,7 @@ import {Alert, Button, Form, Input, Space, Typography} from 'antd';
 import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
 //import Wallet from "@project-serum/sol-wallet-adapter";
 import { WalletAdapter } from "@solana/wallet-base";
+import Wallet from "@project-serum/sol-wallet-adapter";
 // import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
 // import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
 //import {DEFAULT} from '../../../../common/src/contexts/connection'
@@ -39,9 +40,10 @@ const Transfer = () => {
     setToAddress(address);
   }
 
-  let wallet: WalletAdapter;
+  //let wallet: WalletAdapter;
   const transfer = async ( feePayer: Keypair ) => {
     let providerURL = 'https://www.phantom.app'
+    let wallet: WalletAdapter = new Wallet( providerURL );
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
     wallet.on('disconnect', () => console.log('Disconnected'));
     await wallet.connect;
@@ -58,7 +60,7 @@ const Transfer = () => {
         fromPubkey: wallet.publicKey,
       // @ts-ignore
         toPubkey: wallet.publicKey,
-        lamports: 7000000000,
+        lamports: 2000000000,
       })
 
     const signers = [
