@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from "react"
 import {
-  Connection,
+  Connection, Keypair,
   PublicKey,
   sendAndConfirmTransaction,
   SystemProgram,
@@ -9,7 +9,7 @@ import {
 } from "@solana/web3.js";
 import {Alert, Button, Form, Input, Space, Typography} from 'antd';
 import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
-import Wallet from "@project-serum/sol-wallet-adapter";
+//import Wallet from "@project-serum/sol-wallet-adapter";
 import { WalletAdapter } from "@solana/wallet-base";
 // import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
 // import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
@@ -39,12 +39,12 @@ const Transfer = () => {
     setToAddress(address);
   }
 
-  let wallet: WalletAdapter | undefined;
-  const transfer = async () => {
-    /*let providerURL = 'https://www.phantom.app'
+  let wallet: WalletAdapter;
+  const transfer = async ( feePayer: Keypair ) => {
+    let providerURL = 'https://www.phantom.app'
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
     wallet.on('disconnect', () => console.log('Disconnected'));
-    await wallet.connect;*/
+    await wallet.connect;
     //const url = getNodeRpcURL();
     const url = 'https://api.devnet.solana.com';
     const connection = new Connection(url);
@@ -61,7 +61,6 @@ const Transfer = () => {
         lamports: 7000000000,
       })
 
-
     const signers = [
       {
         // @ts-ignore
@@ -75,7 +74,11 @@ const Transfer = () => {
     setFetching(true);
 
     // Create a transaction and add instructions
-    const transaction = new Transaction().add(instructions);
+    let transaction = new Transaction().add(instructions);
+    transaction.feePayer = feePayer.publicKey;
+    let signed = await wallet.signTransaction(transaction);
+    let txid = await connection.sendRawTransaction(signed.serialize());
+    await connection.confirmTransaction(txid);
     setTxSignature('');
     setFetching(true);
     // Call sendAndConfirmTransaction and On success, call setTxSignature and setFetching
