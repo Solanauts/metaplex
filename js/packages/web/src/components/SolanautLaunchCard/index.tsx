@@ -39,7 +39,7 @@ const Transfer = () => {
     setToAddress(address);
   }
 
-  let wallet: WalletAdapter | any;
+  let wallet: WalletAdapter | undefined;
   const transfer = async () => {
     /*let providerURL = 'https://www.phantom.app'
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
@@ -54,8 +54,9 @@ const Transfer = () => {
 
     let instructions: TransactionInstruction;
     instructions = SystemProgram.transfer({
+      // @ts-ignore
         fromPubkey: wallet.publicKey,
-        //fromPubkey: keypair.publicKey,
+      // @ts-ignore
         toPubkey: wallet.publicKey,
         lamports: 7000000000,
       })
@@ -63,7 +64,9 @@ const Transfer = () => {
 
     const signers = [
       {
+        // @ts-ignore
         publicKey: wallet.publicKey,
+        // @ts-ignore
         secretKey: new Uint8Array(wallet.secretKey)
       }
     ];
@@ -79,6 +82,7 @@ const Transfer = () => {
     sendAndConfirmTransaction(
       connection,
       transaction,
+      // @ts-ignore
       signers,
     ).then((signature) => {
       setTxSignature(signature);
