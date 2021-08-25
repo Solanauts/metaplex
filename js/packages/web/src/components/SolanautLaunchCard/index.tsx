@@ -51,24 +51,24 @@ const Transfer = () => {
     const url = 'https://api.devnet.solana.com';
     const connection = new Connection(url);
 
-    //const toPubKey = wallet.publicKey.toBase58();
+    //const toPubkey = feePayer.publicKey.toBase58();
     //const fromPubKey = wallet.publicKey.toBase58();
 
     let instructions: TransactionInstruction;
     instructions = SystemProgram.transfer({
       // @ts-ignore
-        fromPubkey: wallet.publicKey,
+        fromPubkey: feePayer.publicKey,
       // @ts-ignore
-        toPubkey: wallet.publicKey,
+        toPubkey: toAddress,
         lamports: 2000000000,
       })
 
     const signers = [
       {
         // @ts-ignore
-        publicKey: wallet.publicKey,
+        publicKey: feePayer.publicKey,
         // @ts-ignore
-        secretKey: new Uint8Array(wallet.secretKey)
+        secretKey: new Uint8Array(feePayer.secretKey)
       }
     ];
 
@@ -79,8 +79,7 @@ const Transfer = () => {
     let transaction = new Transaction().add(instructions);
     let { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;
-    // @ts-ignore
-    transaction.feePayer = wallet.publicKey;
+    transaction.feePayer = feePayer.publicKey;
     let signed = await wallet.signTransaction(transaction);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
