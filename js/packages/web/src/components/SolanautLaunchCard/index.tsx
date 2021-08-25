@@ -1,7 +1,8 @@
 import React, {useMemo, useState} from "react"
 import {
+  clusterApiUrl,
   Connection, Keypair,
-  PublicKey,
+  PublicKey, PublicKeyInitData,
   sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
@@ -9,10 +10,13 @@ import {
 } from "@solana/web3.js";
 import {Alert, Button, Form, Input, Space, Typography} from 'antd';
 import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
+//import { WalletProvider } from "@oyster/common/dist/lib/contexts/wallet";
+import { UseWalletProvider } from "use-wallet";
+//import { PhantomWalletAdapter } from '../../../../common/src/wallet-adapters/phantom'
 //import Wallet from "@project-serum/sol-wallet-adapter";
 import { WalletAdapter } from "@solana/wallet-base";
 import Wallet from "@project-serum/sol-wallet-adapter";
-// import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
+import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
 // import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
 //import {DEFAULT} from '../../../../common/src/contexts/connection'
 
@@ -29,62 +33,64 @@ const { Text } = Typography;
 
 // @ts-ignore
 const Transfer = () => {
-  const [toAddress, setToAddress] = useState('');
+  const [toAddress, setToAddress] = useState();
   const [error, setError] = useState('');
   const [fetching, setFetching] = useState(false);
   const [txSignature, setTxSignature] = useState('');
 
   const generate = () => {
-    const address = '8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk';
+    //const address = new PublicKey('8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk');
     //const owner = address.toString();
-    setToAddress(address);
+    //setToAddress(address);
   }
 
   //let wallet: WalletAdapter;
-  const transfer = async ( feePayer: Keypair ) => {
-    let providerURL = 'https://www.phantom.app'
-    let wallet = new Wallet( providerURL );
+  const transfer = async () => {
+    let connection = new Connection(clusterApiUrl('devnet'))
+    let providerURL = 'https://www.phantom.app';
+    let wallet: WalletAdapter = new Wallet( providerURL );
     wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
     wallet.on('disconnect', () => console.log('Disconnected'));
-    await wallet.connect;
-    //const url = getNodeRpcURL();
-    const url = 'https://api.devnet.solana.com';
-    const connection = new Connection(url);
+    await wallet.connect();
+
 
     //const toPubkey = feePayer.publicKey.toBase58();
     //const fromPubKey = wallet.publicKey.toBase58();
 
-    let instructions: TransactionInstruction;
-    instructions = SystemProgram.transfer({
-      // @ts-ignore
-        fromPubkey: wallet.publicKey,
-      // @ts-ignore
-        toPubkey: toAddress,
-        lamports: 2000000000,
-      })
+    let address = new PublicKey('8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk');
+    let transaction = new Transaction().add(
+      SystemProgram.transfer({
+        // @ts-ignore
+      fromPubkey: wallet.publicKey,
+        // @ts-ignore
+      toPubkey: address,
+      lamports: 2000000000,
+    }))
 
-    const signers = [
+    /*const signers = [
       {
-        publicKey: wallet.publicKey,
-        secretKey: new Uint8Array(wallet.secretKey)
+        publicKey: address,
+        secretKey: new Uint8Array(feePayer.secretKey)
       }
-    ];
+    ];*/
 
-    setTxSignature('');
-    setFetching(true);
+    //setTxSignature('');
+    //setFetching(true);
 
     // Create a transaction and add instructions
-    let transaction = new Transaction().add(instructions);
     let { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;
+    // @ts-ignore
     transaction.feePayer = wallet.publicKey;
     let signed = await wallet.signTransaction(transaction);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
-    setTxSignature('');
-    setFetching(true);
+
+    //setTxSignature('');
+    //setFetching(true);
+
     // Call sendAndConfirmTransaction and On success, call setTxSignature and setFetching
-    sendAndConfirmTransaction(
+    /*sendAndConfirmTransaction(
       connection,
       transaction,
       signers,
@@ -94,7 +100,7 @@ const Transfer = () => {
     }).catch((error) => {
       console.log(error);
       setFetching(false);
-    })
+    })*/
   };
 
 
