@@ -14,6 +14,7 @@ import { programIds, useConnection, useConnectionConfig, useWallet } from '@oyst
 import { saveAdmin } from '../../actions/saveAdmin';
 import { WhitelistedCreator } from '../../models/metaplex';
 import SolanautLaunchCard from "../../components/SolanautLaunchCard";
+import SolanautsLaunchContainer from "../../components/SolanaLaunchContainer/SolanautsLaunchContainer";
 
 
 const { TabPane } = Tabs;
@@ -218,7 +219,7 @@ export const HomeView = () => {
                     tab={<span className="tab-title">Claim Your Solanaut</span>}
                     key={LiveAuctionViewState.All}
                   >
-                    {<SolanautLaunchCard/>}
+                    {<SolanautsLaunchContainer />}
                   </TabPane>
                   {auctionsEnded.length > 0 && (
                   <TabPane

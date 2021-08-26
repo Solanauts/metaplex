@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Alert, Typography } from 'antd';
 import {
   Connection,
   PublicKey,
@@ -54,6 +55,8 @@ function SolanautLaunchCard() {
   const addLog = (log: string) => setLogs([...logs, log]);
   const connection = new Connection(NETWORK);
   const [, setConnected] = useState<boolean>(false);
+  const [txSignature, setTxSignature] = useState('');
+  const { Text } = Typography;
   useEffect(() => {
     if (provider) {
       provider.on("connect", () => {
@@ -73,6 +76,10 @@ function SolanautLaunchCard() {
   }, [provider]);
   if (!provider) {
     return <h2>Could not find a provider</h2>;
+  }
+
+  const getTxExplorerURL = (signature: string) => {
+    return `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
   }
 
   const createTransferTransaction = async () => {
@@ -105,7 +112,8 @@ function SolanautLaunchCard() {
         addLog(
           "Submitted transaction " + signature + ", awaiting confirmation"
         );
-        await connection.confirmTransaction(signature);
+        setTxSignature(signature);
+        await connection.confirmTransaction(signature, 'processed');
         addLog("Transaction " + signature + " confirmed");
       } catch (e) {
         console.warn(e);
@@ -113,54 +121,18 @@ function SolanautLaunchCard() {
       }
     }
   };
-  const signMultipleTransactions = async (onlyFirst: boolean = false) => {
-    const [transaction1, transaction2] = await Promise.all([
-      createTransferTransaction(),
-      createTransferTransaction()
-    ]);
-    if (transaction1 && transaction2) {
-      let signature;
-      if (onlyFirst) {
-        signature = await provider.signAllTransactions([transaction1]);
-      } else {
-        signature = await provider.signAllTransactions([
-          transaction1,
-          transaction2
-        ]);
-      }
-      addLog("Signature " + signature);
-    }
-  };
-  const signMessage = async (message: string) => {
-    const data = new TextEncoder().encode(message);
-    await provider.signMessage(data);
-    addLog("Message signed");
-  };
+  const explorerUrl = getTxExplorerURL(txSignature);
+
   return (
-    <div className="App">
-      <h1>Phantom Sandbox</h1>
+    <div className="SolanautLaunchCard">
+      <h1>The Solanauts Launchpad</h1>
       <main>
         {provider && provider.publicKey ? (
           <>
             <div>Wallet address: {provider.publicKey?.toBase58()}.</div>
             <div>isConnected: {provider.isConnected ? "true" : "false"}.</div>
             <div>autoApprove: {provider.autoApprove ? "true" : "false"}. </div>
-            <button onClick={sendTransaction}>Send Transaction</button>
-            <button onClick={() => signMultipleTransactions(false)}>
-              Sign All Transactions (multiple){" "}
-            </button>
-            <button onClick={() => signMultipleTransactions(true)}>
-              Sign All Transactions (single){" "}
-            </button>
-            <button
-              onClick={() =>
-                signMessage(
-                  "To avoid digital dognappers, sign below to authenticate with CryptoCorgis."
-                )
-              }
-            >
-              Sign Message
-            </button>
+            <button onClick={sendTransaction}>Pay for Your Solanaut</button>
             <button onClick={() => provider.disconnect()}>Disconnect</button>
           </>
         ) : (
@@ -178,6 +150,18 @@ function SolanautLaunchCard() {
             </div>
           ))}
         </div>
+        {txSignature &&
+          <Alert
+            type="success"
+            showIcon
+            message={
+              <Text strong>Transfer confirmed!</Text>
+            }
+            description={
+              <a href={explorerUrl} target="_blank" rel="noreferrer">View on Solana Explorer</a>
+            }
+          />
+        }
       </main>
     </div>
   );
