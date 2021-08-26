@@ -2,7 +2,7 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
 import '../styles.less';
-import '../components/SolanautLaunchCard/index.css'
+import '../components/SolanautLaunchCard/index.less'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
