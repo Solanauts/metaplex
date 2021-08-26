@@ -1,171 +1,186 @@
-import React, {useMemo, useState} from "react"
+import { useState, useEffect } from "react";
 import {
-  clusterApiUrl,
-  Connection, Keypair,
-  PublicKey, PublicKeyInitData,
-  sendAndConfirmTransaction,
-  SystemProgram,
+  Connection,
+  PublicKey,
   Transaction,
-  TransactionInstruction
+  clusterApiUrl,
+  SystemProgram
 } from "@solana/web3.js";
-import {Alert, Button, Form, Input, Space, Typography} from 'antd';
-import {LoadingOutlined, RedoOutlined} from '@ant-design/icons';
-//import { WalletProvider } from "@oyster/common/dist/lib/contexts/wallet";
-import { UseWalletProvider } from "use-wallet";
-//import { PhantomWalletAdapter } from '../../../../common/src/wallet-adapters/phantom'
-//import Wallet from "@project-serum/sol-wallet-adapter";
-import { WalletAdapter } from "@solana/wallet-base";
-import Wallet from "@project-serum/sol-wallet-adapter";
-import {useWallet} from "@oyster/common/dist/lib/contexts/wallet";
-// import {getPhantomWallet, getSolflareWallet} from "@solana/wallet-adapter-wallets";
-//import {DEFAULT} from '../../../../common/src/contexts/connection'
 
+type DisplayEncoding = "utf8" | "hex";
+type PhantomEvent = "disconnect" | "connect";
+type PhantomRequestMethod =
+  | "connect"
+  | "disconnect"
+  | "signTransaction"
+  | "signAllTransactions"
+  | "signMessage";
 
-const layout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
+interface ConnectOpts {
+  onlyIfTrusted: boolean;
+}
+
+interface PhantomProvider {
+  publicKey: PublicKey | null;
+  isConnected: boolean | null;
+  autoApprove: boolean | null;
+  signTransaction: (transaction: Transaction) => Promise<Transaction>;
+  signAllTransactions: (transactions: Transaction[]) => Promise<Transaction[]>;
+  signMessage: (
+    message: Uint8Array | string,
+    display?: DisplayEncoding
+  ) => Promise<any>;
+  connect: (opts?: Partial<ConnectOpts>) => Promise<void>;
+  disconnect: () => Promise<void>;
+  on: (event: PhantomEvent, handler: (args: any) => void) => void;
+  request: (method: PhantomRequestMethod, params: any) => Promise<any>;
+}
+
+const getProvider = (): PhantomProvider | undefined => {
+  if ("solana" in window) {
+    const provider = (window as any).solana;
+    if (provider.isPhantom) {
+      return provider;
+    }
+  }
+  window.open("https://phantom.app/", "_blank");
 };
-const tailLayout = {
-  wrapperCol: { offset: 4, span: 20 },
-};
 
-const { Text } = Typography;
+const NETWORK = clusterApiUrl("devnet");
 
-// @ts-ignore
-const Transfer = () => {
-  const [toAddress, setToAddress] = useState();
-  const [error, setError] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [txSignature, setTxSignature] = useState('');
-
-  const generate = () => {
-    //const address = new PublicKey('8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk');
-    //const owner = address.toString();
-    //setToAddress(address);
+function SolanautLaunchCard() {
+  const provider = getProvider();
+  const [logs, setLogs] = useState<string[]>([]);
+  const addLog = (log: string) => setLogs([...logs, log]);
+  const connection = new Connection(NETWORK);
+  const [, setConnected] = useState<boolean>(false);
+  useEffect(() => {
+    if (provider) {
+      provider.on("connect", () => {
+        setConnected(true);
+        addLog("Connected to wallet " + provider.publicKey?.toBase58());
+      });
+      provider.on("disconnect", () => {
+        setConnected(false);
+        addLog("Disconnected from wallet");
+      });
+      // try to eagerly connect
+      provider.connect({ onlyIfTrusted: true });
+      return () => {
+        provider.disconnect();
+      };
+    }
+  }, [provider]);
+  if (!provider) {
+    return <h2>Could not find a provider</h2>;
   }
 
-  //let wallet: WalletAdapter;
-  const transfer = async () => {
-    let connection = new Connection(clusterApiUrl('devnet'))
-    let providerURL = 'https://www.phantom.app';
-    let wallet: WalletAdapter = new Wallet( providerURL );
-    wallet.on('connect', (publicKey: { toBase58: () => string; }) => console.log('Connected to ' + publicKey.toBase58()));
-    wallet.on('disconnect', () => console.log('Disconnected'));
-    await wallet.connect();
-
-
-    //const toPubkey = feePayer.publicKey.toBase58();
-    //const fromPubKey = wallet.publicKey.toBase58();
-
-    let address = new PublicKey('8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk');
+  const createTransferTransaction = async () => {
+    if (!provider.publicKey) {
+      return;
+    }
+    let toPubKey = new PublicKey('8VG1sDEF9UMpTrQseCc1R3ZWHnQDB73jS83NBzVujELk')
     let transaction = new Transaction().add(
       SystemProgram.transfer({
-        // @ts-ignore
-      fromPubkey: wallet.publicKey,
-        // @ts-ignore
-      toPubkey: address,
-      lamports: 2000000000,
-    }))
-
-    /*const signers = [
-      {
-        publicKey: address,
-        secretKey: new Uint8Array(feePayer.secretKey)
-      }
-    ];*/
-
-    //setTxSignature('');
-    //setFetching(true);
-
-    // Create a transaction and add instructions
-    let { blockhash } = await connection.getRecentBlockhash();
-    transaction.recentBlockhash = blockhash;
-    // @ts-ignore
-    transaction.feePayer = wallet.publicKey;
-    let signed = await wallet.signTransaction(transaction);
-    let txid = await connection.sendRawTransaction(signed.serialize());
-    await connection.confirmTransaction(txid);
-
-    //setTxSignature('');
-    //setFetching(true);
-
-    // Call sendAndConfirmTransaction and On success, call setTxSignature and setFetching
-    /*sendAndConfirmTransaction(
-      connection,
-      transaction,
-      signers,
-    ).then((signature) => {
-      setTxSignature(signature);
-      setFetching(false);
-    }).catch((error) => {
-      console.log(error);
-      setFetching(false);
-    })*/
+        fromPubkey: provider.publicKey,
+        toPubkey: toPubKey,
+        lamports: 1000000000
+      })
+    );
+    transaction.feePayer = provider.publicKey;
+    addLog("Getting recent blockhash");
+    (transaction as any).recentBlockhash = (
+      await connection.getRecentBlockhash()
+    ).blockhash;
+    return transaction;
   };
 
-
+  const sendTransaction = async () => {
+    const transaction = await createTransferTransaction();
+    if (transaction) {
+      try {
+        let signed = await provider.signTransaction(transaction);
+        addLog("Got signature, submitting transaction");
+        let signature = await connection.sendRawTransaction(signed.serialize());
+        addLog(
+          "Submitted transaction " + signature + ", awaiting confirmation"
+        );
+        await connection.confirmTransaction(signature);
+        addLog("Transaction " + signature + " confirmed");
+      } catch (e) {
+        console.warn(e);
+        addLog("Error: " + e.message);
+      }
+    }
+  };
+  const signMultipleTransactions = async (onlyFirst: boolean = false) => {
+    const [transaction1, transaction2] = await Promise.all([
+      createTransferTransaction(),
+      createTransferTransaction()
+    ]);
+    if (transaction1 && transaction2) {
+      let signature;
+      if (onlyFirst) {
+        signature = await provider.signAllTransactions([transaction1]);
+      } else {
+        signature = await provider.signAllTransactions([
+          transaction1,
+          transaction2
+        ]);
+      }
+      addLog("Signature " + signature);
+    }
+  };
+  const signMessage = async (message: string) => {
+    const data = new TextEncoder().encode(message);
+    await provider.signMessage(data);
+    addLog("Message signed");
+  };
   return (
-    <Form
-      {...layout}
-      name="transfer"
-      layout="horizontal"
-      onFinish={transfer}
-    >
-
-      <Form.Item label="Amount" name="amount" required tooltip="1 lamport = 0.000000001 SOL">
-        <Space direction="vertical">
-          <Input suffix="lamports" style={{ width: "200px" }} />
-        </Space>
-      </Form.Item>
-
-      <Form.Item label="Recipient" required>
-        <Space direction="horizontal">
-          {toAddress && <Text code>{toAddress}</Text>}
-          <Button size="small" type="dashed" onClick={generate} icon={<RedoOutlined />}>The Solanaut Team</Button>
-        </Space>
-      </Form.Item>
-
-      <Form.Item {...tailLayout}>
-        <Button type="primary" htmlType="submit" disabled={fetching}>
-          Submit Transfer
-        </Button>
-      </Form.Item>
-
-      {
-        fetching &&
-        <Form.Item {...tailLayout}>
-          <Space size="large">
-            <LoadingOutlined style={{ fontSize: 24, color: "#1890ff" }} spin />
-            <Text type="secondary">Transfer initiated. Waiting for confirmations...</Text>
-          </Space>
-        </Form.Item>
-      }
-
-      {txSignature &&
-      <Form.Item {...tailLayout}>
-        <Alert
-          type="success"
-          showIcon
-          message={
-            <Text strong>Transfer confirmed!</Text>
-          }
-        />
-      </Form.Item>
-      }
-
-      {error &&
-      <Form.Item {...tailLayout}>
-        <Alert
-          type="error"
-          showIcon
-          closable
-          message={error}
-          onClose={() => setError('')}
-        />
-      </Form.Item>
-      }
-    </Form>
+    <div className="App">
+      <h1>Phantom Sandbox</h1>
+      <main>
+        {provider && provider.publicKey ? (
+          <>
+            <div>Wallet address: {provider.publicKey?.toBase58()}.</div>
+            <div>isConnected: {provider.isConnected ? "true" : "false"}.</div>
+            <div>autoApprove: {provider.autoApprove ? "true" : "false"}. </div>
+            <button onClick={sendTransaction}>Send Transaction</button>
+            <button onClick={() => signMultipleTransactions(false)}>
+              Sign All Transactions (multiple){" "}
+            </button>
+            <button onClick={() => signMultipleTransactions(true)}>
+              Sign All Transactions (single){" "}
+            </button>
+            <button
+              onClick={() =>
+                signMessage(
+                  "To avoid digital dognappers, sign below to authenticate with CryptoCorgis."
+                )
+              }
+            >
+              Sign Message
+            </button>
+            <button onClick={() => provider.disconnect()}>Disconnect</button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => provider.connect()}>
+              Connect to Phantom
+            </button>
+          </>
+        )}
+        <hr />
+        <div className="logs">
+          {logs.map((log, i) => (
+            <div className="log" key={i}>
+              {log}
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
-};
+}
+export default SolanautLaunchCard
 
-export default Transfer
