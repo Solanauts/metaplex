@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Alert, Typography } from 'antd';
 import {
   Connection,
@@ -7,6 +7,7 @@ import {
   clusterApiUrl,
   SystemProgram
 } from "@solana/web3.js";
+import SolanautContext from "../../contexts/meta/solanautContext";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "disconnect" | "connect";
@@ -49,14 +50,18 @@ const getProvider = (): PhantomProvider | undefined => {
 
 const NETWORK = clusterApiUrl("devnet");
 
-function SolanautLaunchCard() {
+function SolanautLaunchCard()
+{
   const provider = getProvider();
-  const [logs, setLogs] = useState<string[]>([]);
-  const addLog = (log: string) => setLogs([...logs, log]);
-  const connection = new Connection(NETWORK);
-  const [, setConnected] = useState<boolean>(false);
-  const [txSignature, setTxSignature] = useState('');
+  const [ logs, setLogs ] = useState<string[]>([] );
+  const addLog = ( log: string ) => setLogs([...logs, log ]);
+  const connection = new Connection( NETWORK );
+  const [, setConnected ] = useState<boolean>(false );
+  const [ txSignature, setTxSignature ] = useState('' );
+  const contextLayer = useContext( SolanautContext );
+  const [ isPaid, setIsPaid ] = useState( contextLayer.isPaid );
   const { Text } = Typography;
+
   useEffect(() => {
     if (provider) {
       provider.on("connect", () => {
@@ -122,6 +127,13 @@ function SolanautLaunchCard() {
     }
   };
   const explorerUrl = getTxExplorerURL(txSignature);
+  /*if ( txSignature.length > 0 )
+  {
+    setIsPaid( true );
+    console.log( 'Solanaut Team is paid: ', isPaid );
+    //console.log( SolanautContext );
+  }*/
+
 
   return (
     <div className="SolanautLaunchCard">
