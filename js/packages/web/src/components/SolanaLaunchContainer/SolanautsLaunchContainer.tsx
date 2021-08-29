@@ -24,6 +24,7 @@ function SolanautsLaunchContainer ()
     // Remove rights will have to return both PublicKey and NFT to TransferNFT
     nextChain(data: string): string {
       console.log('Full rights have been removed: ', data)
+      console.log( 'Test' );
       return transferNFT.endChain(data);
     }
   }
